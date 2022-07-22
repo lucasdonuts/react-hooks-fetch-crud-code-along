@@ -1,18 +1,49 @@
 import React, { useState } from "react";
 
-function ItemForm() {
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("Produce");
+function ItemForm({ addNewItem }) {
+  // const [name, setName] = useState("");
+  // const [category, setCategory] = useState("Produce");
+  const [formData, setFormData] = useState( {
+    category: 'Produce'
+  } )
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const newItem = {
+      name: formData.name,
+      category: formData.category,
+      isInCart: false
+    }
+
+    fetch( 'http://localhost:4000/items',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify(newItem)
+    })
+    .then( res => res.json() )
+    .then( newItem => addNewItem(newItem) )
+  }
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
 
   return (
-    <form className="NewItem">
+    <form className="NewItem" onSubmit={ handleSubmit } >
       <label>
         Name:
         <input
           type="text"
           name="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={ handleChange }
         />
       </label>
 
@@ -20,8 +51,7 @@ function ItemForm() {
         Category:
         <select
           name="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          onChange={ handleChange }
         >
           <option value="Produce">Produce</option>
           <option value="Dairy">Dairy</option>
